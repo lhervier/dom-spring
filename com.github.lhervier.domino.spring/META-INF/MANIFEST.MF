@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Spring Plug-in
+Bundle-SymbolicName: com.github.lhervier.domino.spring;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: com.github.lhervier.domino.spring.Activator
+Bundle-Vendor: GITHUB
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.osgi.framework;version="1.3.0"
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.github.lhervier.domino.spring.external.spring_framework;bundle-version="3.2.18";visibility:=reexport,
+ com.ibm.notes.java.api;visibility:=reexport,
+ com.ibm.xsp.core,
+ com.ibm.xsp.extlib,
+ com.ibm.xsp.domino,
+ com.ibm.xsp.designer,
+ com.ibm.designer.runtime,
+ com.ibm.designer.runtime.directory,
+ com.ibm.domino.napi,
+ com.ibm.domino.osgi.core
+Export-Package: com.github.lhervier.domino.spring.servlet
