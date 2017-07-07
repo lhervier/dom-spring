@@ -8,7 +8,5 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @ComponentScan
 @EnableWebMvc
 public class SpringServletConfig {
-	public SpringServletConfig() {
-		System.out.println("servlet config");
-	}
+	
 }
