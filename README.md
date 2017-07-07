@@ -33,7 +33,7 @@ The update site is now ready to be deployed into your IBM Domino Server.
 
 ## Install on IBM Domino Server
 
-Create a new database names "SpringUpdateSite.nsf" at the root of your server, using the "Eclipse Update Site" advanced template.
+Create a new database named "SpringUpdateSite.nsf" at the root of your server, using the "Eclipse Update Site" advanced template.
 
 Open the database, and click on the "Import local update site" button, and go select the "site.xml" file in the "com.github.lhervier.spring.update" project.
 
@@ -67,11 +67,11 @@ Once the plugins are imported into your IBM Domino Designer and installed into y
 
 The "com.github.lhervier.spring.sample" plugin is a good starting point. You can create your own easily. Simply add a dependency on the "com.github.lhervier.spring" plugin.
 
-Then, create your Spring config classes using the @Configuration annotation, add you Spring beans using the @Bean annotation and your Spring controllers with @Controller
+Then, create your Spring config classes using the @Configuration annotation, add you Spring beans using the @Bean annotation and your Spring controllers with @Controller.
 You can @Autowire your beans to private properties as usual and map requests using @RequestMapping. See sample plugin for example.
 
 Then, you will have to create a new servlet class that extends the "com.github.lhervier.spring.servlet.OsgiDispatchServlet" provided by the main plugin.
-For class loading reasons, this call must be you main servlet, even if it's empty.
+For class loading reasons, this main servlet have to be declared into YOUR plugin, even if it's empty.
 
 Deploy your servlet to Domino : For more details, see this web site : https://www.openntf.org/main.nsf/project.xsp?r=project/Servlet%20Sample).
 
@@ -98,3 +98,5 @@ Again, look at the sample plugin.
 # TODO
 
 Check deployment using apache wink which is now natively included in Domino. Maybe we can support a higher servlet version (and so, a higher Spring version)
+
+By now, I'm only implementing Rest Controllers. If I have time (or another project), I will check if it work with the "normal" SpringMVC flow.
