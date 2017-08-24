@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.equinox.http.registry.servlets">
+      <servlet
+            alias="/spring-sample"
+            class="com.github.lhervier.domino.spring.sample.SampleServlet"
+            load-on-startup="true">
+         <init-param
+               name="contextConfigLocation"
+               value="com.github.lhervier.domino.spring.sample.SampleConfig">
+         </init-param>
+         <init-param
+               name="contextClass"
+               value="org.springframework.web.context.support.AnnotationConfigWebApplicationContext">
+         </init-param>
+      </servlet>
+   </extension>
+
+</plugin>
