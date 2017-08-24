@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServlet;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import com.github.lhervier.domino.spring.DominoApplicationContextInitializer;
+
 public abstract class OsgiDispatcherServlet extends HttpServlet {
 
 	/**
@@ -28,8 +30,10 @@ public abstract class OsgiDispatcherServlet extends HttpServlet {
 	/**
 	 * Constructor
 	 */
+	@SuppressWarnings("unchecked")
 	public OsgiDispatcherServlet() {
 		this.delegated = new DispatcherServlet();
+		this.delegated.setContextInitializers(new DominoApplicationContextInitializer());
 	}
 	
 	/**
