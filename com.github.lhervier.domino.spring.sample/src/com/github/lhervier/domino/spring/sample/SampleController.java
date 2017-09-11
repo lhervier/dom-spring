@@ -1,5 +1,8 @@
 package com.github.lhervier.domino.spring.sample;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import lotus.domino.Database;
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.github.lhervier.domino.spring.servlet.NotesContext;
 
@@ -72,7 +76,7 @@ public class SampleController {
 	 * @throws NotesException
 	 */
 	@RequestMapping(value="/hello", method = RequestMethod.GET, produces = "application/json")
-    @ResponseBody SampleResponse sayHello() throws NotesException {
+    public @ResponseBody SampleResponse sayHello() throws NotesException {
 		SampleResponse ret = new SampleResponse();
 		
 		ret.setMessage(this.service.getMessage());
@@ -100,5 +104,15 @@ public class SampleController {
 		Database db = this.notesContext.getUserSession().getDatabase(null, "names.nsf");
 		db.getDocumentByUNID("DOESNOTEXISTS");
 		return new SampleResponse();
+	}
+	
+	/**
+	 * Method that returns HTML
+	 */
+	@RequestMapping(value = "/message.html", method = RequestMethod.GET, produces = "text/html")
+	public ModelAndView message() {
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("message", "Hello World !!");
+		return new ModelAndView("message", model);
 	}
 }
