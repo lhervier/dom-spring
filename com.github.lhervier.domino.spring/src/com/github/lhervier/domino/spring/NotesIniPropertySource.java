@@ -28,6 +28,8 @@ public class NotesIniPropertySource extends PropertySource<Object> {
 			String value = session.getEnvironmentString(name, true);
 			if( value.length() == 0 )
 				value = null;
+			if( "EMPTY_STRING".equals(value) )
+				return "";
 			return value;
 		} catch(NotesException e) {
 			throw new RuntimeException(e);
