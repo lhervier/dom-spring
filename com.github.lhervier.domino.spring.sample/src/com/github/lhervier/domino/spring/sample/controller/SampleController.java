@@ -1,6 +1,7 @@
 package com.github.lhervier.domino.spring.sample.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.github.lhervier.domino.spring.sample.entity.ToDo;
+import com.github.lhervier.domino.spring.sample.repository.ToDoRepository;
 import com.github.lhervier.domino.spring.sample.service.SampleService;
 import com.github.lhervier.domino.spring.servlet.NotesContext;
 
@@ -46,7 +49,13 @@ public class SampleController {
 	 */
 	@Autowired
 	private HttpServletRequest request;
-		
+	
+	/**
+	 * The Todo repository
+	 */
+	@Autowired
+	private ToDoRepository todoRepo;
+	
 	/**
 	 * The response class
 	 */
@@ -125,4 +134,23 @@ public class SampleController {
 		return new ModelAndView("redirect:message.html");
 	}
 	
+	/**
+	 * Add a todo
+	 */
+	@RequestMapping(value = "/add")
+	@ResponseBody Long addTodo() {
+		ToDo todo = new ToDo();
+		todo.setDescription("description");
+		todo.setTitle("title : " + System.currentTimeMillis());
+		todo = this.todoRepo.save(todo);
+		return todo.getId();
+	}
+	
+	/**
+	 * List todos
+	 */
+	@RequestMapping(value = "/list")
+	@ResponseBody List<ToDo> listTodos() {
+		return this.todoRepo.findAll();
+	}
 }
