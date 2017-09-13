@@ -1,4 +1,4 @@
-package com.github.lhervier.domino.spring.sample;
+package com.github.lhervier.domino.spring.sample.controller;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.github.lhervier.domino.spring.sample.service.SampleService;
 import com.github.lhervier.domino.spring.servlet.NotesContext;
 
 @Controller
@@ -45,7 +46,7 @@ public class SampleController {
 	 */
 	@Autowired
 	private HttpServletRequest request;
-	
+		
 	/**
 	 * The response class
 	 */
@@ -109,10 +110,19 @@ public class SampleController {
 	/**
 	 * Method that returns HTML
 	 */
-	@RequestMapping(value = "/message.html", method = RequestMethod.GET, produces = "text/html")
+	@RequestMapping(value = "/message.html")
 	public ModelAndView message() {
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("message", "Hello World !!");
 		return new ModelAndView("message", model);
 	}
+	
+	/**
+	 * Redirect controller
+	 */
+	@RequestMapping(value = "/redirect")
+	public ModelAndView redirect() {
+		return new ModelAndView("redirect:message.html");
+	}
+	
 }

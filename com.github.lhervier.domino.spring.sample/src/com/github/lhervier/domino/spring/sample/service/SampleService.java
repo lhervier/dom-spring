@@ -1,4 +1,4 @@
-package com.github.lhervier.domino.spring.sample;
+package com.github.lhervier.domino.spring.sample.service;
 
 import org.springframework.stereotype.Service;
 
