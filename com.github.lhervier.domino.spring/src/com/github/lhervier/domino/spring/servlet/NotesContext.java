@@ -67,7 +67,7 @@ public class NotesContext {
 			
 			this.userRoles = new ArrayList<String>();
 			if( db != null ) {
-				Vector<?> roles = db.queryAccessRoles(ContextInfo.getUserSession().getUserName());
+				Vector<?> roles = db.queryAccessRoles(ContextInfo.getUserSession().getEffectiveUserName());
 				for( Iterator<?> it = roles.iterator(); it.hasNext(); )
 					this.userRoles.add((String) it.next());
 			}
