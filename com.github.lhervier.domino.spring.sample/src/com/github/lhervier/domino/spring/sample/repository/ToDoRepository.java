@@ -14,5 +14,6 @@ public interface ToDoRepository extends CrudRepository<ToDo, Long> {
  
     public ToDo findOne(Long id);
  
-    public ToDo save(ToDo persisted);
+    @SuppressWarnings("unchecked")
+	public ToDo save(ToDo persisted);
 }
