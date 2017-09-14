@@ -99,6 +99,7 @@ public abstract class OsgiDispatcherServlet extends HttpServlet {
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		try {
 			Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
+			System.out.println("Initializing osgi dispatcher servlet");
 			this.delegated.init(delegatedConfig);
 		} finally {
 			Thread.currentThread().setContextClassLoader(loader);
@@ -106,7 +107,6 @@ public abstract class OsgiDispatcherServlet extends HttpServlet {
 	}
 
 	/**
-	 * 
 	 * @see javax.servlet.GenericServlet#destroy()
 	 */
 	public void destroy() {
