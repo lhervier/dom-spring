@@ -10,6 +10,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -34,6 +36,15 @@ public abstract class OsgiDispatcherServlet extends HttpServlet {
 	public OsgiDispatcherServlet() {
 		this.delegated = new DispatcherServlet();
 		this.delegated.setContextInitializers(new DominoApplicationContextInitializer());
+
+	}
+	
+	/**
+	 * To add context initializers
+	 */
+	@SuppressWarnings("unchecked")
+	public void addContextInitializer(ApplicationContextInitializer<ConfigurableApplicationContext> initializer) {
+		this.delegated.setContextInitializers(initializer);
 	}
 	
 	/**
