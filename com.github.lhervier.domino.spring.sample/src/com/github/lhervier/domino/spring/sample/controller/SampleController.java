@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import lotus.domino.Database;
 import lotus.domino.NotesException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,10 +53,22 @@ public class SampleController {
 	private HttpServletRequest request;
 	
 	/**
+	 * The http session
+	 */
+	@Autowired
+	private HttpSession httpSession;
+	
+	/**
 	 * The Todo repository
 	 */
 	@Autowired
 	private ToDoRepository todoRepo;
+	
+	/**
+	 * The spring environment
+	 */
+	@Autowired
+	private Environment env;
 	
 	/**
 	 * The response class
@@ -66,6 +80,8 @@ public class SampleController {
 		private String directory;
 		private String uri;
 		private String message;
+		private String staticEnvValue;
+		private String paramViewEnvValue;
 		public String getUser() { return user; }
 		public void setUser(String s) { this.user = s; }
 		public String getServer() { return server; }
@@ -78,6 +94,10 @@ public class SampleController {
 		public void setUri(String uri) { this.uri = uri; }
 		public String getMessage() { return message; }
 		public void setMessage(String message) { this.message = message; }
+		public String getStaticEnvValue() {return staticEnvValue;}
+		public void setStaticEnvValue(String envValue) {this.staticEnvValue = envValue;}
+		public String getParamViewEnvValue() {return paramViewEnvValue;}
+		public void setParamViewEnvValue(String paramViewEnvValue) {this.paramViewEnvValue = paramViewEnvValue;}
 	}
 	
 	/**
@@ -100,6 +120,9 @@ public class SampleController {
 		ret.setDirectory(this.directory);
 		
 		ret.setUri(this.request.getRequestURI());
+		
+		ret.setStaticEnvValue(this.env.getProperty("spring.sample.test-property"));
+		ret.setParamViewEnvValue(this.env.getProperty("INIT_ClientId"));
 		
 		return ret;
 	}
@@ -152,5 +175,25 @@ public class SampleController {
 	@RequestMapping(value = "/list")
 	@ResponseBody List<ToDo> listTodos() {
 		return this.todoRepo.findAll();
+	}
+	
+	/**
+	 * Set value in session
+	 */
+	@RequestMapping(value = "/setSession")
+	@ResponseBody long setSession() {
+		this.httpSession.setAttribute("sample", System.currentTimeMillis());
+		return this.getSession();
+	}
+	
+	/**
+	 * Return the value from the session
+	 */
+	@RequestMapping(value = "/getSession")
+	@ResponseBody long getSession() {
+		Long ret = (Long) this.httpSession.getAttribute("sample");
+		if( ret == null )
+			return -1;
+		return ret.longValue();
 	}
 }

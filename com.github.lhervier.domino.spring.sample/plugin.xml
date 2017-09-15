@@ -17,5 +17,14 @@
          </init-param>
       </servlet>
    </extension>
+   <extension
+         point="com.github.lhervier.domino.spring.propertysources">
+      <property-source
+            class="com.github.lhervier.domino.spring.sample.StaticPropertySource">
+      </property-source>
+      <property-source
+            class="com.github.lhervier.domino.spring.sample.ParamViewPropertySource">
+      </property-source>
+   </extension>
 
 </plugin>
