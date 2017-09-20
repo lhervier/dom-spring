@@ -122,7 +122,7 @@ public class SampleController {
 		ret.setUri(this.request.getRequestURI());
 		
 		ret.setStaticEnvValue(this.env.getProperty("spring.sample.test-property"));
-		ret.setParamViewEnvValue(this.env.getProperty("INIT_ClientId"));
+		ret.setParamViewEnvValue(this.env.getProperty("PARAM_RESTSERVER"));
 		
 		return ret;
 	}
