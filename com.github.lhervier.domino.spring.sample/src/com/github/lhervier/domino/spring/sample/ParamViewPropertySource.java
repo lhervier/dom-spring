@@ -7,8 +7,19 @@ import com.github.lhervier.domino.spring.servlet.BaseParamViewPropertySource;
 
 public class ParamViewPropertySource extends BaseParamViewPropertySource {
 
+	/**
+	 * Empty constructor
+	 */
 	public ParamViewPropertySource() {
-		super("param-view-property-source", "Params");
+		super("sample-param-view-property-source");
+	}
+
+	/**
+	 * @see com.github.lhervier.domino.spring.servlet.BaseParamViewPropertySource#getViewName()
+	 */
+	@Override
+	protected String getViewName() {
+		return "Params";
 	}
 
 	/**

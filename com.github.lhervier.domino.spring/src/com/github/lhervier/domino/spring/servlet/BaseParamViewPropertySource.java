@@ -34,11 +34,6 @@ public abstract class BaseParamViewPropertySource extends BaseNotesPropertySourc
 	private static final long EXPIRATION = 30 * 60 * 1000;			// 30 minutes
 	
 	/**
-	 * The view Name
-	 */
-	private String viewName;
-	
-	/**
 	 * The properties for each database
 	 */
 	private Map<String, Properties> propertiesByDb;
@@ -51,12 +46,17 @@ public abstract class BaseParamViewPropertySource extends BaseNotesPropertySourc
 	/**
 	 * Constructor
 	 */
-	public BaseParamViewPropertySource(String name, String viewName) {
+	public BaseParamViewPropertySource(String name) {
 		super(name);
-		this.viewName = viewName;
 		this.propertiesByDb = new HashMap<String, Properties>();
 		this.expirationByDb = new HashMap<String, Long>();
 	}
+	
+	/**
+	 * Return the view name
+	 * @return the view name
+	 */
+	protected abstract String getViewName();
 	
 	/**
 	 * Check if this database is elligible for property extraction
@@ -124,7 +124,7 @@ public abstract class BaseParamViewPropertySource extends BaseNotesPropertySourc
 						NotesThread.sinitThread();
 						session = NotesFactory.createSession();
 						db = DominoUtils.openDatabase(session, dbPath);
-						v = db.getView(BaseParamViewPropertySource.this.viewName);
+						v = db.getView(BaseParamViewPropertySource.this.getViewName());
 						if( v == null )
 							return;
 						doc = v.getFirstDocument();
