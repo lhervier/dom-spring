@@ -22,7 +22,11 @@ import org.springframework.web.servlet.ModelAndView;
 import com.github.lhervier.domino.spring.sample.entity.ToDo;
 import com.github.lhervier.domino.spring.sample.repository.ToDoRepository;
 import com.github.lhervier.domino.spring.sample.service.SampleService;
-import com.github.lhervier.domino.spring.servlet.NotesContext;
+import com.github.lhervier.domino.spring.servlet.ServerDatabase;
+import com.github.lhervier.domino.spring.servlet.ServerSession;
+import com.github.lhervier.domino.spring.servlet.UserDatabase;
+import com.github.lhervier.domino.spring.servlet.UserRoles;
+import com.github.lhervier.domino.spring.servlet.UserSession;
 
 @Controller
 public class SampleController {
@@ -34,11 +38,35 @@ public class SampleController {
 	private SampleService service;
 	
 	/**
-	 * NotesContext object gives you access to the local
-	 * Domino server informations.
+	 * The session opened as the server
 	 */
 	@Autowired
-	private NotesContext notesContext;
+	private ServerSession serverSession;
+	
+	/**
+	 * The session opened as the current user
+	 */
+	@Autowired
+	private UserSession userSession;
+	
+	/**
+	 * The current database opened as the server
+	 */
+	@SuppressWarnings("unused")
+	@Autowired
+	private ServerDatabase serverDatase;
+	
+	/**
+	 * The current database opened as the user
+	 */
+	@Autowired
+	private UserDatabase userDatabase;
+	
+	/**
+	 * The user roles
+	 */
+	@Autowired
+	private UserRoles userRoles;
 	
 	/**
 	 * You can inject variables directly from the notes.ini
@@ -82,6 +110,7 @@ public class SampleController {
 		private String message;
 		private String staticEnvValue;
 		private String paramViewEnvValue;
+		private List<String> roles;
 		public String getUser() { return user; }
 		public void setUser(String s) { this.user = s; }
 		public String getServer() { return server; }
@@ -98,6 +127,8 @@ public class SampleController {
 		public void setStaticEnvValue(String envValue) {this.staticEnvValue = envValue;}
 		public String getParamViewEnvValue() {return paramViewEnvValue;}
 		public void setParamViewEnvValue(String paramViewEnvValue) {this.paramViewEnvValue = paramViewEnvValue;}
+		public List<String> getRoles() {return roles;}
+		public void setRoles(List<String> roles) {this.roles = roles;}
 	}
 	
 	/**
@@ -111,11 +142,10 @@ public class SampleController {
 		
 		ret.setMessage(this.service.getMessage());
 		
-		ret.setServer(this.notesContext.getServerSession().getEffectiveUserName());
-		ret.setUser(this.notesContext.getUserSession().getEffectiveUserName());
-		Database database = this.notesContext.getUserDatabase();
-		if( database != null )
-			ret.setDatabase(database.getFilePath());
+		ret.setServer(this.serverSession.getEffectiveUserName());
+		ret.setUser(this.userSession.getEffectiveUserName());
+		if( this.userDatabase.isAvailable() )
+			ret.setDatabase(this.userDatabase.getFilePath());
 		
 		ret.setDirectory(this.directory);
 		
@@ -123,6 +153,8 @@ public class SampleController {
 		
 		ret.setStaticEnvValue(this.env.getProperty("spring.sample.test-property"));
 		ret.setParamViewEnvValue(this.env.getProperty("PARAM_RESTSERVER"));
+		
+		ret.setRoles(this.userRoles);
 		
 		return ret;
 	}
@@ -134,7 +166,7 @@ public class SampleController {
 	 */
 	@RequestMapping(value = "/exception", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody SampleResponse throwException() throws NotesException {
-		Database db = this.notesContext.getUserSession().getDatabase(null, "names.nsf");
+		Database db = this.userSession.getDatabase(null, "names.nsf");
 		db.getDocumentByUNID("DOESNOTEXISTS");
 		return new SampleResponse();
 	}
