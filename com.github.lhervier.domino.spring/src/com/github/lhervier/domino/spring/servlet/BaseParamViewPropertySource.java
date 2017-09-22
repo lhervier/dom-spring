@@ -7,10 +7,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
-import com.github.lhervier.domino.spring.util.DominoUtils;
-import com.github.lhervier.domino.spring.util.ValueHolder;
-import com.ibm.domino.osgi.core.context.ContextInfo;
-
 import lotus.domino.Database;
 import lotus.domino.Document;
 import lotus.domino.Item;
@@ -19,6 +15,10 @@ import lotus.domino.NotesFactory;
 import lotus.domino.NotesThread;
 import lotus.domino.Session;
 import lotus.domino.View;
+
+import com.github.lhervier.domino.spring.util.DominoUtils;
+import com.github.lhervier.domino.spring.util.ValueHolder;
+import com.ibm.domino.osgi.core.context.ContextInfo;
 
 /**
  * Base class for property sources that will search
@@ -57,6 +57,13 @@ public abstract class BaseParamViewPropertySource extends BaseNotesPropertySourc
 	 * @return the view name
 	 */
 	protected abstract String getViewName();
+	
+	/**
+	 * A prefix to add to the field names
+	 */
+	protected String getPrefix() {
+		return "";
+	}
 	
 	/**
 	 * Check if this database is elligible for property extraction
@@ -149,7 +156,7 @@ public abstract class BaseParamViewPropertySource extends BaseNotesPropertySourc
 										value += ",";
 								}
 							}
-							props.setProperty(it.getName().toUpperCase(), value);
+							props.setProperty(BaseParamViewPropertySource.this.getPrefix().toUpperCase() + it.getName().toUpperCase(), value);
 						}
 					} catch(NotesException e) {
 						throw new RuntimeException(e);
