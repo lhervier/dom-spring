@@ -2,19 +2,28 @@ package com.github.lhervier.domino.spring;
 
 import java.util.Properties;
 
-import com.github.lhervier.domino.spring.servlet.BaseNotesPropertySource;
-
 import lotus.domino.NotesException;
 import lotus.domino.Session;
 
+import com.github.lhervier.domino.spring.servlet.BaseNotesPropertySource;
+
 public class NotesIniPropertySource extends BaseNotesPropertySource {
 	
+	/**
+	 * Notes.ini values
+	 */
 	private Properties props;
 	
+	/**
+	 * Constructor
+	 */
 	public NotesIniPropertySource() {
 		super("notes-ini-property-source");
 	}
 
+	/**
+	 * @see com.github.lhervier.domino.spring.servlet.BaseNotesPropertySource#init(lotus.domino.Session)
+	 */
 	@Override
 	public void init(Session session) throws NotesException {
 		this.props = new Properties();
@@ -33,6 +42,9 @@ public class NotesIniPropertySource extends BaseNotesPropertySource {
 		}
 	}
 	
+	/**
+	 * @see org.springframework.core.env.PropertySource#getProperty(java.lang.String)
+	 */
 	@Override
 	public Object getProperty(String name) {
 		return this.props.get(name.toUpperCase());
