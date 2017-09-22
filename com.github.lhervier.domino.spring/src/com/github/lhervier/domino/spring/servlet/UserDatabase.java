@@ -14,6 +14,7 @@ import lotus.domino.NotesException;
 import lotus.domino.Outline;
 import lotus.domino.Replication;
 import lotus.domino.Session;
+import lotus.domino.UserID;
 import lotus.domino.View;
 
 import org.springframework.stereotype.Component;
@@ -666,5 +667,13 @@ public class UserDatabase implements Database {
 
 	public void updateFTIndex(boolean arg0) throws NotesException {
 		getUserDatabase().updateFTIndex(arg0);
+	}
+	
+	public void setUserIDFileForDecrypt(String arg0, String arg1) throws NotesException {
+		getUserDatabase().setUserIDFileForDecrypt(arg0, arg1);
+	}
+	
+	public void setUserIDForDecrypt(UserID arg0) throws NotesException {
+		getUserDatabase().setUserIDForDecrypt(arg0);
 	}
 }

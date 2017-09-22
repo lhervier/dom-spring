@@ -17,6 +17,7 @@ import lotus.domino.NotesException;
 import lotus.domino.Outline;
 import lotus.domino.Replication;
 import lotus.domino.Session;
+import lotus.domino.UserID;
 import lotus.domino.View;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -716,5 +717,14 @@ public class ServerDatabase implements Database {
 
 	public void updateFTIndex(boolean arg0) throws NotesException {
 		serverDatabase.updateFTIndex(arg0);
+	}
+
+	public void setUserIDFileForDecrypt(String arg0, String arg1)
+			throws NotesException {
+		serverDatabase.setUserIDFileForDecrypt(arg0, arg1);
+	}
+
+	public void setUserIDForDecrypt(UserID arg0) throws NotesException {
+		serverDatabase.setUserIDForDecrypt(arg0);
 	}
 }

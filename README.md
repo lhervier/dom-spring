@@ -18,6 +18,18 @@ Bundles dependencies are :
 
 # Generate the update site
 
+## Update for IBM Designer installation
+
+IBM have updated the lotus.domino.Session and lotus.domino.Database interfaces in their latest version. But the Notes.jar stored in the "com.ibm.notes.java.api" haven't been upgraded. 
+As Eclipse is using this one to compile, it's ok. But when compiling the update site, ant will use the one from jvm/lib/ext. That will lead to compilation errors.
+  
+Before generating the update site, you must update this plugin :
+
+- Copy the file jvm/lib/ext/Notes.jar
+- In the folder "framework\shared\eclipse\plugins\com.ibm.notes.java.api.win32.linux_9.0.1.20131022-0932" and replace the existing one.
+
+I'm using IBM Domino Designer 9.0.1FP8. Maybe the next version will change this behavior...
+
 ## Import the projects into IBM Domino Designer
 
 - Clone or download the source code into a local folder.

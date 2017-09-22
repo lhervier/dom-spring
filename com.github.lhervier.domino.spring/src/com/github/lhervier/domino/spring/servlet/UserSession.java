@@ -17,6 +17,7 @@ import lotus.domino.Document;
 import lotus.domino.DocumentCollection;
 import lotus.domino.DxlExporter;
 import lotus.domino.DxlImporter;
+import lotus.domino.IDVault;
 import lotus.domino.International;
 import lotus.domino.Log;
 import lotus.domino.Name;
@@ -383,5 +384,17 @@ public class UserSession implements Session {
 	public boolean verifyPassword(String arg0, String arg1)
 			throws NotesException {
 		return this.getUserSession().verifyPassword(arg0, arg1);
+	}
+	
+	public boolean changePassword(String arg0, String arg1, String arg2) throws NotesException {
+		return this.getUserSession().changePassword(arg0, arg1, arg2);
+	}
+
+	public IDVault getIDVault() throws NotesException {
+		return this.getUserSession().getIDVault();
+	}
+
+	public IDVault getIDVault(String arg0) throws NotesException {
+		return this.getUserSession().getIDVault(arg0);
 	}
 }
