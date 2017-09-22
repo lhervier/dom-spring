@@ -16,51 +16,19 @@ Bundles dependencies are :
 - HikariCP 2.3.13
 - Hibernate JPA provider 1.3.11.FINAL
 
-# Generate the update site
+# Installation on production environments
 
-## Update for IBM Designer installation
+## Download the update site
 
-IBM have updated the lotus.domino.Session and lotus.domino.Database interfaces in their latest version. But the Notes.jar stored in the "com.ibm.notes.java.api" haven't been upgraded. 
-As Eclipse is using this one to compile, it's ok. But when compiling the update site, ant will use the one from jvm/lib/ext. That will lead to compilation errors.
-  
-Before generating the update site, you must update this plugin :
+You can download the update site from the release screen on github. It is a simple zip file that contains the needed OSGI plugins and features.
 
-- Copy the file jvm/lib/ext/Notes.jar
-- In the folder "framework\shared\eclipse\plugins\com.ibm.notes.java.api.win32.linux_9.0.1.20131022-0932" and replace the existing one.
-
-I'm using IBM Domino Designer 9.0.1FP8. Maybe the next version will change this behavior...
-
-## Import the projects into IBM Domino Designer
-
-- Clone or download the source code into a local folder.
-- Open Domino Designer
-- Open the "package explorer" view, right click in the blank part, and select Import.
-- In the "General" section, select "Existing projets into workspace"
-- Click "Browse" and select the folder that contains this project's sources.
-- Select all projects and click "Import"
-
-The code is now imported in your IBM Domino Designer.
-
-## Compile
-
-Open the file "site.xml" in the "com.github.lhervier.spring.update" project.
-Click the "Build All" button.
-
-The result is in the "com.github.lhervier.spring.update" folder. This is a "standard" update site composed of :
-
-- the "site.xml" file
-- the "plugins" folder
-- and the "features" folder
-
-The update site is now ready to be deployed into your IBM Domino Server.
-
-## Deploy on IBM Domino Server (production case)
+## Install on Domino Server
 
 Create a new database named "SpringUpdateSite.nsf" (you can name it the way you want) on your server, using the "Eclipse Update Site" advanced template.
 
-Open the database with your Notes client, and click on the "Import local update site" button. Go select the "site.xml" file in the "com.github.lhervier.spring.update" project.
+Open the database with your Notes client, and click on the "Import local update site" button. Go select the "site.xml" in the unzipped version of the update site.
 
-On the server, add (or update) the notes.ini variable "OSGI_HTTP_DYNAMIC_BUNDLES". It must point to your "SpringUpdateSite.nsf" database. 
+Add (or update) the notes.ini variable "OSGI_HTTP_DYNAMIC_BUNDLES". It must point to your "SpringUpdateSite.nsf" database. 
 Use a comma to separate multiple values if you already have another entry (for the extlib for example).
 
 Restart the http task (console command):
@@ -92,10 +60,51 @@ You can also access the sample servlet in the context of a domino database :
 
 Log into the database, and you should see a message with your name in the JSON.
 
-## Deploy on IBM Domino Server (development case)
+# Generating the update site yourself
+
+## Update your IBM Domino Designer installation
+
+IBM have updated the lotus.domino.Session and lotus.domino.Database interfaces in their latest version. But the Notes.jar stored in the "com.ibm.notes.java.api" plugin haven't been upgraded. 
+As Eclipse is using this one to compile, it's ok. But when compiling the update site with ant, it will use the one from jvm/lib/ext. That will lead to compilation errors.
+  
+Before generating the update site, you must update this plugin :
+
+- Copy the file jvm/lib/ext/Notes.jar
+- In the folder "framework\shared\eclipse\plugins\com.ibm.notes.java.api.win32.linux_9.0.1.20131022-0932" and replace the existing one.
+
+I'm using IBM Domino Designer 9.0.1 FP8. Maybe the next version will change this behavior...
+
+## Import the projects into IBM Domino Designer
+
+- Clone or download the source code from github into a local folder.
+- Open Domino Designer
+- Open the "package explorer" view, right click in the blank part, and select Import.
+- In the "General" section, select "Existing projets into workspace"
+- Click "Browse" and select the folder that contains this project's sources.
+- Select all projects and click "Import"
+
+The code is now imported in your IBM Domino Designer.
+
+## Compile
+
+Open the file "site.xml" in the "com.github.lhervier.spring.update" project.
+Click the "Build All" button.
+
+The result is in the "com.github.lhervier.spring.update" folder. This is a "standard" update site composed of :
+
+- the "site.xml" file
+- the "plugins" folder
+- and the "features" folder
+
+The update site is now ready to be zipped...
+
+# Deploy spring plugins on IBM Domino Server (development case)
+
+Of course, you can deploy the plugins on your development server the same way you deployed them on the production servers. But there is another way.
 
 Once the plugins source has been imported in your workspace, you can use the "IBM Domino Debug Plugin" to make a local Domino Server use them. 
-Please note that you will have to have a LOCAL Domino Server that runs on the same host as your Designer.
+Please note that you will have to have a LOCAL Domino Server that runs on the same file system as your Designer.
+
 First, install the "IBM Domino Debug Plugin" :
 
 - Download the zip file from https://www.openntf.org/main.nsf/project.xsp?r=project/IBM%20Lotus%20Domino%20Debug%20Plugin
@@ -125,9 +134,9 @@ As for production environment, you can check that the server has loaded your plu
 
 	tell http osgi ss spring
 
-# Create a application using Spring :
+# Creating an application using Spring :
 
-Once the plugins sources are imported in your Domino Designer, and the update site is deployed into your IBM Domino Server, you can create your own plugins, and start using Spring. 
+Once the plugins sources are imported in your Domino Designer and into your IBM Domino Server, you can create your own plugins, and start using Spring. 
 
 ## Create a new plugin, and a new servlet
 
@@ -135,6 +144,8 @@ You will have to create a new OSGI Plug-in. The "com.github.lhervier.spring.samp
 
 Then, you will have to create a new servlet class that extends the "com.github.lhervier.spring.servlet.OsgiDispatchServlet" provided by the main plugin.
 For obscure class loading reasons, this main servlet have to be declared into YOUR plugin, even if it's implementation is empty.
+
+Create a standard Spring Configuration class that you will annotate with @Configuration, @ComponentScan, @EnableWebMvc, etc...
 
 Deploy your servlet to Domino : 
 
@@ -145,23 +156,28 @@ Deploy your servlet to Domino :
 	- contextClass : MUST BE set to "org.springframework.web.context.support.AnnotationConfigWebApplicationContext". Xml based configuration is NOT supported.
 	- contextLocation : Full name of your config class (use spaces or comma to add multiple).
 
-For more details on developping with servlets, see this web site : https://www.openntf.org/main.nsf/project.xsp?r=project/Servlet%20Sample).
+For more details on developping servlets on Domino, see this web site : https://www.openntf.org/main.nsf/project.xsp?r=project/Servlet%20Sample).
 
 ## Code "the Spring way"
 
-Then, create your Spring config classes (beware. You must be coherent with what you declared in your plugin.xml file) using the @Configuration annotation, add you Spring beans using the @Bean annotation and your Spring controllers with @Controller.
+Then, create your Spring beans using the @Bean, @Service, or @Controller annotations... 
 You can @Autowire beans to private properties as usual and map requests using @RequestMapping. See sample plugin for example.
+
+You can store your FreeMarker templates in a "template" folder, at the root of your plugin (don't forget to export it in the "build" tab of the plugin.xml), and static files
+in a "static" folder.
 
 I wrote a set of beans to access the notes context. You can @Autowired them as usual :
 
 - UserSession : A lotus.domino.Session object that is opened using the current user credentials.
-- UserDatabase : A lotus.domino.Database object that points to the current database. Beware that if you are accessing the servlet outside of a database context, this object will NOT be null. But the "isAvailable()" method will return false.
+- UserDatabase : A lotus.domino.Database object that points to the current database. 
+  Beware that if you are accessing the servlet outside of a database context, this object will NOT be null. But its "isAvailable()" method will return false.
 - ServerSession: Same thing as UserSession, but session is opened as the server.
 - ServerDatabase: Same as UserDatabase, but current database is opened as the server.
+- UserRoles: This is a simple ArrayList<String> that contains the current user roles on the current database. If current database does not exists, the list will be empty.
 
 ## Inject properties from notes.ini
 
-I also added a Spring property source that allows you to inject values from notes.ini variables. Simply use the @Value annotation :
+I also added a Spring property source that allows you to inject values from notes.ini variables. Simply use the @Value annotation in your beans :
 
 	@Value("${directory}")
 	private String directory
@@ -176,7 +192,7 @@ Using this extension point, you can inject objects that extends the "BaseNotesPr
 - init(session) : You will be given a Notes Session, opened as the server, allowing you to load your properties from whatever source you want (notes database probably)
 - getProperty(name) : You will have to return a value for the property, or null if you don't know about it.
 
-## Inject properties from the first document a view 
+## Inject properties from the first document of a view 
 
 I have also implemented a "BaseParamViewPropertySource" object that you can extend instead of the "BaseNotesPropertySource". 
 Such objects will allow you to access properties that correspond to fields present in the first document of a given view. 
@@ -200,12 +216,13 @@ To implement such property sources, you will have to implement :
 - getViewName() : This method must return the name of the view in which we will search for the document that contains the parameters.
 - checkDb(Database) : This method will have to return "true" if the given database (opened with the server rights) is allowed by your servlet (don't forget that your servlet will be made available on ALL databases). 
   Here, you can check for a given template name, or any other criteria you want (but template name is a good candidate).
+- getPrefix() is a non mandatory method. It's return will be added before the field names.
 
-Don't forget that your properties will NOT be available at your bean construction time ! You will have to use the Spring Environment object to find the values.
+Don't forget that your properties will NOT be available at your beans construction time ! You will have to use the Spring Environment object to find the values.
 
 ## Inject properties from a profile document 
 
-As I hate profile documents (just a personnal opinion), you will have to implement your own property source for that.
+As I hate profile documents (just a personal opinion), you will have to implement your own property source for that. Should'nt be that hard...
 
 ## Deploy your plugins to the Domino Server
 
