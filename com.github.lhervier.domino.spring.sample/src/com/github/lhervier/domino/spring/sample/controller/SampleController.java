@@ -22,11 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.github.lhervier.domino.spring.sample.entity.ToDo;
 import com.github.lhervier.domino.spring.sample.repository.ToDoRepository;
 import com.github.lhervier.domino.spring.sample.service.SampleService;
-import com.github.lhervier.domino.spring.servlet.ServerDatabase;
-import com.github.lhervier.domino.spring.servlet.ServerSession;
-import com.github.lhervier.domino.spring.servlet.UserDatabase;
-import com.github.lhervier.domino.spring.servlet.UserRoles;
-import com.github.lhervier.domino.spring.servlet.UserSession;
+import com.github.lhervier.domino.spring.servlet.NotesContext;
 
 @Controller
 public class SampleController {
@@ -38,35 +34,10 @@ public class SampleController {
 	private SampleService service;
 	
 	/**
-	 * The session opened as the server
+	 * The NotesContext
 	 */
 	@Autowired
-	private ServerSession serverSession;
-	
-	/**
-	 * The session opened as the current user
-	 */
-	@Autowired
-	private UserSession userSession;
-	
-	/**
-	 * The current database opened as the server
-	 */
-	@SuppressWarnings("unused")
-	@Autowired
-	private ServerDatabase serverDatase;
-	
-	/**
-	 * The current database opened as the user
-	 */
-	@Autowired
-	private UserDatabase userDatabase;
-	
-	/**
-	 * The user roles
-	 */
-	@Autowired
-	private UserRoles userRoles;
+	private NotesContext notesContext;
 	
 	/**
 	 * You can inject variables directly from the notes.ini
@@ -142,10 +113,10 @@ public class SampleController {
 		
 		ret.setMessage(this.service.getMessage());
 		
-		ret.setServer(this.serverSession.getEffectiveUserName());
-		ret.setUser(this.userSession.getEffectiveUserName());
-		if( this.userDatabase.isAvailable() )
-			ret.setDatabase(this.userDatabase.getFilePath());
+		ret.setServer(this.notesContext.getServerSession().getEffectiveUserName());
+		ret.setUser(this.notesContext.getUserSession().getEffectiveUserName());
+		if( this.notesContext.getUserDatabase() != null )
+			ret.setDatabase(this.notesContext.getUserDatabase().getFilePath());
 		
 		ret.setDirectory(this.directory);
 		
@@ -154,7 +125,7 @@ public class SampleController {
 		ret.setStaticEnvValue(this.env.getProperty("spring.sample.test-property"));
 		ret.setParamViewEnvValue(this.env.getProperty("PARAM_RESTSERVER"));
 		
-		ret.setRoles(this.userRoles);
+		ret.setRoles(this.notesContext.getUserRoles());
 		
 		return ret;
 	}
@@ -166,7 +137,7 @@ public class SampleController {
 	 */
 	@RequestMapping(value = "/exception", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody SampleResponse throwException() throws NotesException {
-		Database db = this.userSession.getDatabase(null, "names.nsf");
+		Database db = this.notesContext.getUserSession().getDatabase(null, "names.nsf");
 		db.getDocumentByUNID("DOESNOTEXISTS");
 		return new SampleResponse();
 	}

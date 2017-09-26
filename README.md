@@ -62,18 +62,6 @@ Log into the database, and you should see a message with your name in the JSON.
 
 # Generating the update site yourself
 
-## Update your IBM Domino Designer installation
-
-IBM have updated the lotus.domino.Session and lotus.domino.Database interfaces in their latest version. But the Notes.jar stored in the "com.ibm.notes.java.api" plugin haven't been upgraded. 
-As Eclipse is using this one to compile, it's ok. But when compiling the update site with ant, it will use the one from jvm/lib/ext. That will lead to compilation errors.
-  
-Before generating the update site, you must update this plugin :
-
-- Copy the file jvm/lib/ext/Notes.jar
-- In the folder "framework\shared\eclipse\plugins\com.ibm.notes.java.api.win32.linux_9.0.1.20131022-0932" and replace the existing one.
-
-I'm using IBM Domino Designer 9.0.1 FP8. Maybe the next version will change this behavior...
-
 ## Import the projects into IBM Domino Designer
 
 - Clone or download the source code from github into a local folder.
@@ -166,14 +154,14 @@ You can @Autowire beans to private properties as usual and map requests using @R
 You can store your FreeMarker templates in a "template" folder, at the root of your plugin (don't forget to export it in the "build" tab of the plugin.xml), and static files
 in a "static" folder.
 
-I wrote a set of beans to access the notes context. You can @Autowired them as usual :
+I wrote a NotesContext bean to access the notes context. You can @Autowired it as usual and access its methods :
 
-- UserSession : A lotus.domino.Session object that is opened using the current user credentials.
-- UserDatabase : A lotus.domino.Database object that points to the current database. 
-  Beware that if you are accessing the servlet outside of a database context, this object will NOT be null. But its "isAvailable()" method will return false.
-- ServerSession: Same thing as UserSession, but session is opened as the server.
-- ServerDatabase: Same as UserDatabase, but current database is opened as the server.
-- UserRoles: This is a simple ArrayList<String> that contains the current user roles on the current database. If current database does not exists, the list will be empty.
+- getUserSession() : Returns a lotus.domino.Session object that is opened using the current user credentials.
+- getUserDatabase() : Returns a lotus.domino.Database object that points to the current database. 
+  Beware that if you are accessing the servlet outside of a database context, this object will NOT be null.
+- getServerSession(): Same thing as getUserSession(), but session is opened as the server.
+- getServerDatabase(): Same as getUserDatabase(), but current database is opened as the server.
+- getUserRoles(): This is a simple ArrayList<String> that contains the current user roles on the current database. If current database does not exists, the list will be empty.
 
 ## Inject properties from notes.ini
 
