@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.github.lhervier.domino.spring.feature_1.0.0.201709261813.jar" id="com.github.lhervier.domino.spring.feature" version="1.0.0.201709261813"/>
+   <feature url="features/com.github.lhervier.domino.spring.feature_1.1.0.qualifier.jar" id="com.github.lhervier.domino.spring.feature" version="1.1.0.qualifier"/>
 </site>
