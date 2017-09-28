@@ -2,7 +2,7 @@
 <feature
       id="com.github.lhervier.domino.spring.feature"
       label="Feature Feature"
-      version="1.1.0.qualifier"
+      version="1.2.0.qualifier"
       provider-name="GITHUB">
 
    <description url="http://www.example.com/description">
