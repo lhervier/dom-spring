@@ -28,6 +28,8 @@ Create a new database named "SpringUpdateSite.nsf" (you can name it the way you 
 
 Open the database with your Notes client, and click on the "Import local update site" button. Go select the "site.xml" in the unzipped version of the update site.
 
+Using the "Main features" view, you can disable the "com.github.lhervier.domino.spring.sample.feature" feature, and so, not deplting the sample app.
+
 Add (or update) the notes.ini variable "OSGI_HTTP_DYNAMIC_BUNDLES". It must point to your "SpringUpdateSite.nsf" database. 
 Use a comma to separate multiple values if you already have another entry (for the extlib for example).
 
@@ -223,6 +225,116 @@ Once http is restarted, you can navigate to your controllers.
 
 Again, look at the sample plugin for an example on how to use them.
 
+# Deploy the sample application
+
+The sample app is deployed when the "com.github.lhervier.domino.spring.sample.feature" feature is activated in your Eclipse Update Site database. Or, if you are in a development environnement, when you
+deploy the "com.github.lhervier.domino.spring.sample" plugin to your local Domino Server using the XPages Debug plugin.
+
+As a standard Spring application, he sample app needs properties that are normally defined in the "application.properties" file. But of course, with Domino, you don't have such a file.
+
+To define the properties, you can implement your own Spring PropertySource (See this document). Or you can use the NotesIniPropertySource that is installed by default with the main spring plugin.
+
+Long story short : You can simply define your properties in your server's notes.ini file.
+
+The sample app endpoints are accessible using URLs like :
+
+	http://<domino server>/spring-sample/<endpoint>
+	
+Or, if you want to execute them in the context of a notes database (you will have to authenticate, based on the database ACL)
+
+	http://<domino server>/<any NSF>.nsf/spring-sample/<endpoint>
+
+All endpoints are implemented in the SampleController class file.
+	
+## The "/hello" endpoint
+
+This endpoint will return you information from the current user, the current database (if you have a NSF in the URL), etc... It will also extract values of properties made available from different Spring PropertySources.
+
+Just call it, and have a look at the JSON result.
+
+### Notes.ini variables
+
+Look at the "directory" property. Its value is what is defined in the DIRECTORY notes.ini variable.
+
+### Static property
+
+This endpoint will extract a property named "spring.sample.static.property" that is defined by the StaticPropertySource object. Look at its implementation, and note that this class 
+is used in the plugin.xml to add an extension to the main spring plugin.
+
+### Property from a Notes document (ie configuration document)
+
+The same way, it will also extract a property named "spring.sample.local.ParamField". 
+This property value is extracted from the field named "ParamField" stored in the first document of the "Params" view (if such a view with such a document exists in the current context).
+Look at the code of the "ParamViewPropertySource" :
+
+- It extends "BaseParamViewPropertySource"
+- It implements the getViewName and getPrefix methods
+- And it is declared in the plugin.xml file
+
+Note that to access such properties, you will have to use the Spring Environment bean. 
+You can NOT use @Value annotations because such annotations are evaluated when spring creates the SampleController bean : When the servlet is started.
+At this moment, we don't have any notes context (any current notes database), and we are not able to extract values. But if you use the Spring Environment Bean, you ask
+Spring to evaluate the property at runtime, when executing the controller's method. And at this moment, we have a current notes database.
+
+So, to define a value for this property, simply create a Notes database with a view named "Params", and add a document in this view with a field named "ParamField".
+Save the doc, access the /hello endpoint, and you will get the value of your field in the JSON response.
+
+You can also use the sample-ondisk project to create a new Notes database.
+
+## The "/exception" endpoint
+
+This endpoint will raise an exception. It is used to show you how to implement @ControllerAdvice to catch exceptions, and display a custom error page.
+
+Look at the code of the ExceptionController class.
+
+Nothing specific to Domino environnement. This endpoint is just here to show you that @ControllerAdvice, @ErrorHandler, etc... are working as expected.
+
+## The "/message.html" endpoint
+
+This endpoint is here to show you how to use Spring MVC with freemarker templates.
+
+As for "/exception", there is nothing specific to Domino. Note that the Freemarkers templates are defined in the "/templates" folder, and that this folder is 
+exported in the "build" part of the plugin.xml/MANIFEST.MF/build.properties eclipse editor.
+
+## The "/redirect" endpoint
+
+This endpoint will redirect the browser (using a 302 http response code) to the "/message.html" endpoint.
+
+Nothing specific to Domino here. Just to show you that it is working.
+
+## The "/add" and "/list" endpoints
+
+Those endpoints will show you how to use Hibernate and JPA with Domino and Spring.
+
+For the sample, we are using a h2 in-memory database. But if you deploy your own JDBC driver, you will be able to access any database.
+Also note that the H2 JDBC driver is deployed with the main spring plugin. This is a bad thing, I know. Maybe I will fix this later.
+
+The jpa and hibernate properties must be defined as standard Spring Properties. As explained in introduction of this chapter, the simplest way to define them is to create notes.ini variables :
+
+	# Database Configuration
+	db.driver=org.h2.Driver
+	db.url=jdbc:h2:mem:datajpa
+	db.username=sa
+	db.password=EMPTY_STRING
+
+	# Hibernate Configuration
+	hibernate.dialect=org.hibernate.dialect.H2Dialect
+	hibernate.hbm2ddl.auto=create-drop
+	hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy
+	hibernate.show_sql=false
+	hibernate.format_sql=true
+
+Note the use of the "EMPTY_STRING" keyword. This is because you cannot define a notes.ini variable to an empty value...
+
+Once the notes.ini have been updated, you can use the two endpoints to add a new "ToDo", and retrieving the list of the previously added values.
+As the database is in-memory only, restarting the http task will reset the list of values.
+
+## The logging aspect
+
+Note that every access to any of the SampleController methods will be logged at the server console. This is implemented using an Aspect.
+
+Again, nothing specific to Domino here. Just have a look at the LoggingAspect class.
+
 # Implementation difficulties 
 
 - The "com.github.lhervier.domino.spring.external.spring_framework" plugin had to uses "org.eclipse.runtime" as a dependency. Without it, Spring is not able to access ressources in an OSGI environment.
@@ -231,4 +343,6 @@ Again, look at the sample plugin for an example on how to use them.
 
 # TODO
 
-Check deployment using apache wink which is now natively included in Domino. Maybe we can support a higher servlet version (and so, a higher Spring version)
+- Check deployment using apache wink which is now natively included in Domino. Maybe we can support a higher servlet version (and so, a higher Spring version)
+- Split the main spring plugin into multiple plugins (especially the h2 jdbc driver)
+

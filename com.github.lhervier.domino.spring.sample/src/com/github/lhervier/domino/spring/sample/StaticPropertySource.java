@@ -18,8 +18,8 @@ public class StaticPropertySource extends BaseNotesPropertySource {
 
 	@Override
 	public Object getProperty(String name) {
-		if( "spring.sample.test-property".equals(name) )
-			return "property-value-from-osgi";
+		if( "spring.sample.static.property".equals(name) )
+			return "property-value-from-static-property-source";
 		return null;
 	}
 

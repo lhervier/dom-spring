@@ -23,6 +23,14 @@ public class ParamViewPropertySource extends BaseParamViewPropertySource {
 	}
 
 	/**
+	 * @see com.github.lhervier.domino.spring.servlet.BaseParamViewPropertySource#getPrefix()
+	 */
+	@Override
+	protected String getPrefix() {
+		return "spring.sample.local.";
+	}
+
+	/**
 	 * We will extract properties from every database that 
 	 * contains a "Params" view.
 	 */

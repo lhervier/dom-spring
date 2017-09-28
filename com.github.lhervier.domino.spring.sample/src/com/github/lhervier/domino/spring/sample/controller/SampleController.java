@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import lotus.domino.Database;
 import lotus.domino.NotesException;
@@ -52,12 +51,6 @@ public class SampleController {
 	private HttpServletRequest request;
 	
 	/**
-	 * The http session
-	 */
-	@Autowired
-	private HttpSession httpSession;
-	
-	/**
 	 * The Todo repository
 	 */
 	@Autowired
@@ -68,6 +61,12 @@ public class SampleController {
 	 */
 	@Autowired
 	private Environment env;
+	
+	/**
+	 * Sample test property injected from the StaticPropertySource
+	 */
+	@Value("${spring.sample.static.property}")
+	private String staticProperty;
 	
 	/**
 	 * The response class
@@ -111,21 +110,27 @@ public class SampleController {
     public @ResponseBody SampleResponse sayHello() throws NotesException {
 		SampleResponse ret = new SampleResponse();
 		
+		// Calling an external service
 		ret.setMessage(this.service.getMessage());
 		
+		// Extracting information from the current notes context
 		ret.setServer(this.notesContext.getServerSession().getEffectiveUserName());
 		ret.setUser(this.notesContext.getUserSession().getEffectiveUserName());
 		if( this.notesContext.getUserDatabase() != null )
 			ret.setDatabase(this.notesContext.getUserDatabase().getFilePath());
+		ret.setRoles(this.notesContext.getUserRoles());
 		
-		ret.setDirectory(this.directory);
-		
+		// Accessing current request properties
 		ret.setUri(this.request.getRequestURI());
 		
-		ret.setStaticEnvValue(this.env.getProperty("spring.sample.test-property"));
-		ret.setParamViewEnvValue(this.env.getProperty("PARAM_RESTSERVER"));
+		// Accessing notes.ini variables
+		ret.setDirectory(this.directory);
 		
-		ret.setRoles(this.notesContext.getUserRoles());
+		// Accessing a property injected by a custom PropertySource
+		ret.setStaticEnvValue(this.staticProperty);
+		
+		// Accessing a property that correspon to a field in a configuration document
+		ret.setParamViewEnvValue(this.env.getProperty("spring.sample.local.ParamField"));
 		
 		return ret;
 	}
@@ -178,25 +183,5 @@ public class SampleController {
 	@RequestMapping(value = "/list")
 	@ResponseBody List<ToDo> listTodos() {
 		return this.todoRepo.findAll();
-	}
-	
-	/**
-	 * Set value in session
-	 */
-	@RequestMapping(value = "/setSession")
-	@ResponseBody long setSession() {
-		this.httpSession.setAttribute("sample", System.currentTimeMillis());
-		return this.getSession();
-	}
-	
-	/**
-	 * Return the value from the session
-	 */
-	@RequestMapping(value = "/getSession")
-	@ResponseBody long getSession() {
-		Long ret = (Long) this.httpSession.getAttribute("sample");
-		if( ret == null )
-			return -1;
-		return ret.longValue();
 	}
 }
