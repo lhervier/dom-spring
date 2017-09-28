@@ -279,8 +279,6 @@ Spring to evaluate the property at runtime, when executing the controller's meth
 So, to define a value for this property, simply create a Notes database with a view named "Params", and add a document in this view with a field named "ParamField".
 Save the doc, access the /hello endpoint, and you will get the value of your field in the JSON response.
 
-You can also use the sample-ondisk project to create a new Notes database.
-
 ## The "/exception" endpoint
 
 This endpoint will raise an exception. It is used to show you how to implement @ControllerAdvice to catch exceptions, and display a custom error page.
