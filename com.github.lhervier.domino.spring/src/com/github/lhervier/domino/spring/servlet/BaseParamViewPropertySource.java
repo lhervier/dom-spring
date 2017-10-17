@@ -143,7 +143,7 @@ public abstract class BaseParamViewPropertySource extends BaseNotesPropertySourc
 							if( it.getType() != Item.TEXT && it.getType() != Item.NUMBERS )
 								continue;
 							Vector<?> values = it.getValues();
-							if( values.size() == 0 )
+							if( values == null || values.size() == 0 )
 								continue;
 							String value;
 							if( values.size() == 1 ) {
