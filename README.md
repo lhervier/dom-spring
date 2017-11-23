@@ -8,9 +8,10 @@
   - [Import the projects into IBM Domino Designer](#import-the-projects-into-ibm-domino-designer)
   - [Compile](#compile)
 - [Deploy spring plugins on IBM Domino Server (development case)](#deploy-spring-plugins-on-ibm-domino-server-development-case)
-- [Creating an application using Spring :](#creating-an-application-using-spring)
+- [Creating an application using Spring](#creating-an-application-using-spring)
   - [Create a new plugin, and a new servlet](#create-a-new-plugin-and-a-new-servlet)
   - [Code "the Spring way"](#code-the-spring-way)
+  - [Logging](#logging)
   - [Inject properties from notes.ini](#inject-properties-from-notesini)
   - [Inject your own properties](#inject-your-own-properties)
   - [Inject properties from the first document of a view](#inject-properties-from-the-first-document-of-a-view)
@@ -196,6 +197,26 @@ I wrote a NotesContext bean to access the notes context. You can @Autowired it a
 - getServerDatabase(): Same as getUserDatabase(), but current database is opened as the server.
 - getUserRoles(): This is a simple ArrayList<String> that contains the current user roles on the current database. If current database does not exists, the list will be empty.
 
+## Logging
+
+By default, Spring uses Apache commons-logging, and so does the osgi layer of the http task. To implement a logger, use something like 
+
+	public class MyService {
+		private static final Log LOG = LogFactory.getLogger(MyService.class);
+		...
+	}
+
+So this question is not related to this project, but to the development of any OSGi plugin on Domino. By default, only messages higher than "ERROR" will be logged to the Domino console.
+To change this, edit the file
+
+	${DOMINO_DATA}/domino/workspace/.config/rcpinstall.properties
+
+For example, if your classes are in the package named "com.acme.myapp", just add the line 
+
+	com.acme.myapp.level=FINEST
+	
+See https://stackoverflow.com/questions/22709056/osgi-bundle-logging-on-domino-server for more details.
+	
 ## Inject properties from notes.ini
 
 I also added a Spring property source that allows you to inject values from notes.ini variables. Simply use the @Value annotation in your beans :
