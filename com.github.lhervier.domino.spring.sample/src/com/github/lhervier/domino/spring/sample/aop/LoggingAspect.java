@@ -14,7 +14,6 @@ public class LoggingAspect {
 	/**
 	 * Pointcut to detect classes we will log access
 	 */
-	@SuppressWarnings("unused")
 	@Pointcut("within(com.github.lhervier.domino.spring.sample.controller.*)")
 	private void controller() {
 	}

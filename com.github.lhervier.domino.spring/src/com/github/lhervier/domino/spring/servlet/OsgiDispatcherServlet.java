@@ -73,7 +73,7 @@ public abstract class OsgiDispatcherServlet extends HttpServlet {
 			/**
 			 * @see javax.servlet.ServletConfig#getInitParameterNames()
 			 */
-			@SuppressWarnings("unchecked")
+			@SuppressWarnings({ "rawtypes" })
 			@Override
 			public Enumeration getInitParameterNames() {
 				return config.getInitParameterNames();
@@ -135,7 +135,7 @@ public abstract class OsgiDispatcherServlet extends HttpServlet {
 	 * @return
 	 * @see javax.servlet.GenericServlet#getInitParameterNames()
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	public Enumeration getInitParameterNames() {
 		return delegated.getInitParameterNames();
 	}
