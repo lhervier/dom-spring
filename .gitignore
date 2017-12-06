@@ -1,3 +1,4 @@
 bin
 com.github.lhervier.domino.spring.update/plugins
 com.github.lhervier.domino.spring.update/features
+target

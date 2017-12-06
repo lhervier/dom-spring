@@ -5,8 +5,14 @@
   - [Download the update site](#download-the-update-site)
   - [Install on Domino Server](#install-on-domino-server)
 - [Generating the update site yourself](#generating-the-update-site-yourself)
-  - [Import the projects into IBM Domino Designer](#import-the-projects-into-ibm-domino-designer)
-  - [Compile](#compile)
+  - [Using IBM Domino Designer](#using-ibm-domino-designer)
+    - [Import the projects into IBM Domino Designer](#import-the-projects-into-ibm-domino-designer)
+    - [Compile](#compile)
+  - [Using Maven](#using-maven)
+    - [Install a JDK](#install-a-jdk)
+    - [Install maven](#install-maven)
+    - [Install IBM Domino Update Site for Build Management](#install-ibm-domino-update-site-for-build-management)
+    - [Compile](#compile)
 - [Deploy spring plugins on IBM Domino Server (development case)](#deploy-spring-plugins-on-ibm-domino-server-development-case)
 - [Creating an application using Spring](#creating-an-application-using-spring)
   - [Create a new plugin, and a new servlet](#create-a-new-plugin-and-a-new-servlet)
@@ -96,7 +102,9 @@ Log into the database, and you should see a message with your name in the JSON.
 
 # Generating the update site yourself
 
-## Import the projects into IBM Domino Designer
+## Using IBM Domino Designer
+
+### Import the projects into IBM Domino Designer
 
 - Clone or download the source code from github into a local folder.
 - Open Domino Designer
@@ -107,7 +115,7 @@ Log into the database, and you should see a message with your name in the JSON.
 
 The code is now imported in your IBM Domino Designer.
 
-## Compile
+### Compile
 
 Open the file "site.xml" in the "com.github.lhervier.spring.update" project.
 Click the "Build All" button.
@@ -119,6 +127,60 @@ The result is in the "com.github.lhervier.spring.update" folder. This is a "stan
 - and the "features" folder
 
 The update site is now ready to be zipped...
+
+## Using Maven
+
+### Install a JDK
+
+Download it from Oracle official web site, and install it. Choose the same version as your Domino Server :
+
+- Domino 9.0.1 FP8 or more, download the latest 1.8 version.
+- Less than this version, download the latest 1.6 version.
+
+### Install maven
+
+Download it from http://maven.apache.org, and unzip it in c:\maven (for example).
+
+Add environment variables :
+
+- Add MAVEN_HOME so it points to C:\maven
+- Add JAVA_HOME so it points to the folder where your JDK was installed
+- Adapt PATH to add C:\maven\bin
+
+Check that it work by opening a CMD shell, and typing :
+
+	mvn --version
+
+It should answer something like this :
+
+	Apache Maven 3.5.0 (ff8f5e7444045639af65f6095c62210b5713f426; 2017-04-03T21:39:06+02:00)
+	Maven home: C:\maven\bin\..
+	Java version: 1.8.0_102, vendor: Oracle Corporation
+	Java home: C:\Program Files\Java\jdk1.8.0_102\jre
+	Default locale: fr_FR, platform encoding: Cp1252
+	OS name: "windows 10", version: "10.0", arch: "amd64", family: "windows"
+
+### Install IBM Domino Update Site for Build Management
+
+This is a standard Eclipse update site that contains all the plugins for XPages Core and ExtLib.
+
+Download the zip file :
+
+	https://www.openntf.org/main.nsf/project.xsp?r=project/IBM%20Domino%20Update%20Site%20for%20Build%20Management/summary
+
+In this example, I will supose you unzipped it to 
+
+	C:\UpdateSite
+	
+### Compile
+
+Clone this repository in a local folder, open a CMD shell, and run 
+
+	mvn install -Dnotes-platform=file:///C:/UpdateSite
+
+The update site will be made available in the file :
+
+	/com.github.lhervier.domino.spring.update/target/com.github.lhervier.domino.spring.update-<version>.zip
 
 # Deploy spring plugins on IBM Domino Server (development case)
 
