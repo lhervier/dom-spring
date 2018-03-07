@@ -8,12 +8,19 @@
   - [Using IBM Domino Designer](#using-ibm-domino-designer)
     - [Import the projects into IBM Domino Designer](#import-the-projects-into-ibm-domino-designer)
     - [Compile](#compile)
+    - [Deploy plugins on your local Domino Server](#deploy-plugins-on-your-local-domino-server)
   - [Using Maven](#using-maven)
     - [Install a JDK](#install-a-jdk)
     - [Install maven](#install-maven)
     - [Install IBM Domino Update Site for Build Management](#install-ibm-domino-update-site-for-build-management)
     - [Compile](#compile)
-- [Deploy spring plugins on IBM Domino Server (development case)](#deploy-spring-plugins-on-ibm-domino-server-development-case)
+    - [Deploy on the local Domino Server](#deploy-on-the-local-domino-server)
+  - [Using Eclipse JEE (Oxygen)](#using-eclipse-jee-oxygen)
+    - [Install the XPages SDK](#install-the-xpages-sdk)
+    - [Configure the JVM Runtime, and the target platform](#configure-the-jvm-runtime-and-the-target-platform)
+    - [Import the projects](#import-the-projects)
+    - [Generate the update site](#generate-the-update-site)
+    - [Deploy plugins on your local Domino Server](#deploy-plugins-on-your-local-domino-server)
 - [Creating an application using Spring](#creating-an-application-using-spring)
   - [Create a new plugin, and a new servlet](#create-a-new-plugin-and-a-new-servlet)
   - [Code "the Spring way"](#code-the-spring-way)
@@ -128,6 +135,42 @@ The result is in the "com.github.lhervier.spring.update" folder. This is a "stan
 
 The update site is now ready to be zipped...
 
+### Deploy plugins on your local Domino Server
+
+Of course, you can deploy the plugins on your development server the same way you deployed them on the production servers. But there is another way.
+
+Once the plugins source has been imported in your workspace, you can use the "IBM Domino Debug Plugin" to make a local Domino Server use them. 
+Please note that you will have to have a LOCAL Domino Server that runs on the same file system as your Designer.
+
+First, install the "IBM Domino Debug Plugin" :
+
+- Download the zip file from https://www.openntf.org/main.nsf/project.xsp?r=project/IBM%20Lotus%20Domino%20Debug%20Plugin
+- In your IBM Domino Designer :
+	- Go to File/Preferences menu, in the "Domino Designer" section, and check "Enable Eclipse plug-in install"
+	- Now, go to File/Application/Install menu.
+	- Select "Search for new features"
+	- Add a "Zip/jar location" and go find the zip you just downloaded.
+	- Click Finish, and accept licences.
+	- Designer will ask to restart.
+	
+Once restarted :
+
+- Open "package explorer" view
+- Click on the arrow next to the green bug icon bar, and select "Debug Configurations"
+- Right click on the "OSGI Framework section", and choose "New"
+- Name it the way you want
+- Select "Domino Osgi Framework" in the drop down list
+- Set "default auto start" to "false"
+- In the plugin list, UNCHECK the "target platform" plugins section.
+- And in the "Workspace" section, select all the imported plugins.
+- Click "Debug"
+- You will have to enter the installation path of your local Domino Server
+- Once done, you will have to restart the http task (using "restart task http")
+
+As for production environment, you can check that the server has loaded your plugins by sending the following console command :
+
+	tell http osgi ss spring
+
 ## Using Maven
 
 ### Install a JDK
@@ -168,7 +211,7 @@ Download the zip file :
 
 	https://www.openntf.org/main.nsf/project.xsp?r=project/IBM%20Domino%20Update%20Site%20for%20Build%20Management/summary
 
-In this example, I will supose you unzipped it to 
+In the zip is another zip file named "Updatesite.zip". Unzip it to 
 
 	C:\UpdateSite
 	
@@ -182,24 +225,70 @@ The update site will be made available in the file :
 
 	/com.github.lhervier.domino.spring.update/target/com.github.lhervier.domino.spring.update-<version>.zip
 
-# Deploy spring plugins on IBM Domino Server (development case)
+### Deploy on the local Domino Server
 
-Of course, you can deploy the plugins on your development server the same way you deployed them on the production servers. But there is another way.
-
-Once the plugins source has been imported in your workspace, you can use the "IBM Domino Debug Plugin" to make a local Domino Server use them. 
-Please note that you will have to have a LOCAL Domino Server that runs on the same file system as your Designer.
-
-First, install the "IBM Domino Debug Plugin" :
-
-- Download the zip file from https://www.openntf.org/main.nsf/project.xsp?r=project/IBM%20Lotus%20Domino%20Debug%20Plugin
-- In your IBM Domino Designer :
-	- Go to File/Preferences menu, in the "Domino Designer" section, and check "Enable Eclipse plug-in install"
-	- Now, go to File/Application/Install menu.
-	- Select "Search for new features"
-	- Add a "Zip/jar location" and go find the zip you just downloaded.
-	- Click Finish, and accept licences.
-	- Designer will ask to restart.
+You will have to use the same procedure as when deploying to a normal production environment.
 	
+## Using Eclipse JEE (Oxygen)
+	
+### Install the XPages SDK
+
+Download the zip file from :
+
+	https://www.openntf.org/main.nsf/project.xsp?r=project/XPages%20SDK%20for%20Eclipse%20RCP
+
+Unzip the file to the folder of your choice. Then, in Eclipse, go to the menu "Help / Install new software".
+
+In the dialog box, click the "add" button in from of the "Work with" combo :
+
+- Name = XPages sdk
+- Click the "Folder" button, and go find the folder named "org.openntf.xsp.sdk.updatesite" in the extracted zip file.
+
+Select all features, accept licences, "Install anyway" when prompted to, and restart Eclipse.
+
+### Configure the JVM Runtime, and the target platform
+
+Open Eclipse preferences, and go to the section "XPages SDK" :
+
+- Enable using IBM DOMINO on this computer
+- Enter the path to the notes.ini, the installation folder of your Domino Server, and the path to your data folder.
+- Click "Automatically create JRE for domino"
+- And "Apply".
+
+This will create a new JRE Runtime, and a new Target platform. Select them :
+
+- Go to the section "Java / Installed JREs", and select the newly created JRE (XPages Domino JRE)
+- Go to the section "Plugins Development / Target platform", and select the newly created target platform (Domino Target).
+
+### Import the projects 
+
+In the package explorer, right click :
+
+- Select "Import", then choose "General / Existing project into workspace". 
+- Go search for the folder where you cloned the sources
+- And import the projects.
+
+The code should compile fine.
+
+### Generate the update site
+
+Open the site.xml file present in the project "com.github.lhervier.domino.update", and click the "Build All" button.
+
+This will build the update site
+
+### Deploy plugins on your local Domino Server
+
+Download the "IBM Domino Debug plugin" file from 
+
+	https://www.openntf.org/main.nsf/project.xsp?r=project/IBM%20Lotus%20Domino%20Debug%20Plugin
+
+It is a zip file. Unzip it anywhere, and in Eclipse, go to the menu "Help / Install New Software", and click the "Add button" :
+
+- Name = IBM Domino debug Plugin
+- Click the "Archive" button, and go find the zip file named "com.ibm.domino.osgi.debug.site.zip" present in the main zip file.
+- Click next, and install all the available plugins. Accept licence, and "Install anyway".
+- Restart Eclipse.
+
 Once restarted :
 
 - Open "package explorer" view
@@ -210,6 +299,7 @@ Once restarted :
 - Set "default auto start" to "false"
 - In the plugin list, UNCHECK the "target platform" plugins section.
 - And in the "Workspace" section, select all the imported plugins.
+- Uncheck "Validate bundles prior to launching"
 - Click "Debug"
 - You will have to enter the installation path of your local Domino Server
 - Once done, you will have to restart the http task (using "restart task http")
@@ -220,11 +310,12 @@ As for production environment, you can check that the server has loaded your plu
 
 # Creating an application using Spring
 
-Once the plugins sources are imported in your Domino Designer and into your IBM Domino Server, you can create your own plugins, and start using Spring. 
+Once the plugins sources are imported in your Eclipse or Domino Designer, you can create your own plugins, and start using Spring. 
 
 ## Create a new plugin, and a new servlet
 
-You will have to create a new OSGI Plug-in. The "com.github.lhervier.spring.sample" plugin is a good starting point, but you can create your own easily. Simply add a dependency on the "com.github.lhervier.spring" plugin.
+You will have to create a new OSGI Plug-in. The "com.github.lhervier.spring.sample" plugin is a good starting point, but you can create your own easily. 
+Simply add a dependency on the "com.github.lhervier.spring" plugin.
 
 Then, you will have to create a new servlet class that extends the "com.github.lhervier.spring.servlet.OsgiDispatchServlet" provided by the main plugin.
 For obscure class loading reasons, this main servlet have to be declared into YOUR plugin, even if it's implementation is empty.
