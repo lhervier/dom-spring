@@ -2,7 +2,7 @@
 <feature
       id="com.github.lhervier.domino.spring.sample.feature"
       label="Spring Sample App Feature"
-      version="1.3.0.qualifier"
+      version="1.4.0.qualifier"
       provider-name="GITHUB">
 
    <description url="http://www.example.com/description">
