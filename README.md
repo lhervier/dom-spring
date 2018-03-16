@@ -71,8 +71,6 @@ Create a new database named "SpringUpdateSite.nsf" (you can name it the way you 
 
 Open the database with your Notes client, and click on the "Import local update site" button. Go select the "site.xml" in the unzipped version of the update site.
 
-Using the "Main features" view, you can disable the "com.github.lhervier.domino.spring.sample.feature" feature, and so, not deplting the sample app.
-
 Add (or update) the notes.ini variable "OSGI_HTTP_DYNAMIC_BUNDLES". It must point to your "SpringUpdateSite.nsf" database. 
 Use a comma to separate multiple values if you already have another entry (for the extlib for example).
 
@@ -115,7 +113,7 @@ Log into the database, and you should see a message with your name in the JSON.
 - Open Domino Designer
 - Open the "package explorer" view, right click in the blank part, and select Import.
 - In the "General" section, select "Existing projets into workspace"
-- Click "Browse" and select the folder that contains this project's sources.
+- Click "Browse" and select the "domino-osgi" folder. You can also import the sample if you want.
 - Select all projects and click "Import"
 
 The code is now imported in your IBM Domino Designer.
@@ -181,11 +179,12 @@ In the zip is another zip file named "Updatesite.zip". Unzip it to
 
 Clone this repository in a local folder, open a CMD shell, and run 
 
+	cd domino-osgi
 	mvn install -Dnotes-platform=file:///C:/UpdateSite
 
 The update site will be made available in the file :
 
-	/com.github.lhervier.domino.spring.update/target/com.github.lhervier.domino.spring.update-<version>.zip
+	/domino-osgi/com.github.lhervier.domino.spring.update/target/com.github.lhervier.domino.spring.update-<version>.zip
 
 ## Using Eclipse JEE (Oxygen)
 	
@@ -223,7 +222,7 @@ This will create a new JRE Runtime, and a new Target platform. Select them :
 In the package explorer, right click :
 
 - Select "Import", then choose "General / Existing project into workspace". 
-- Go search for the folder where you cloned the sources
+- Go search for the folder "domino-osgi". You can also import the sample if you want.
 - And import the projects.
 
 The code should compile fine.
@@ -400,16 +399,59 @@ Once http is restarted, you can navigate to your controllers.
 
 Again, look at the sample plugin for an example on how to use them.
 
-# Deploy the sample application
+# How to play with the sample application
 
-The sample app is deployed when the "com.github.lhervier.domino.spring.sample.feature" feature is activated in your Eclipse Update Site database. Or, if you are in a development environnement, when you
-deploy the "com.github.lhervier.domino.spring.sample" plugin to your local Domino Server using the XPages Debug plugin.
+## Settings on Domino Server
 
-As a standard Spring application, he sample app needs properties that are normally defined in the "application.properties" file. But of course, with Domino, you don't have such a file.
+As a standard Spring application, the sample app needs properties that are normally defined in the "application.properties" file. 
+But of course, with Domino, you don't have such a file.
 
-To define the properties, you can implement your own Spring PropertySource (See this document). Or you can use the NotesIniPropertySource that is installed by default with the main spring plugin.
+To define the properties, you can implement your own Spring PropertySource (See this document). Or you can use the NotesIniPropertySource that is installed by default 
+with the main spring plugin.
 
 Long story short : You can simply define your properties in your server's notes.ini file.
+
+The awaited properties are :
+
+	# Database Configuration
+	db.driver=org.h2.Driver
+	db.url=jdbc:h2:mem:datajpa
+	db.username=sa
+	db.password=EMPTY_STRING
+
+	# Hibernate Configuration
+	hibernate.dialect=org.hibernate.dialect.H2Dialect
+	hibernate.hbm2ddl.auto=create-drop
+	hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy
+	hibernate.show_sql=false
+	hibernate.format_sql=true
+
+Note the use of the "EMPTY_STRING" keyword. This is because you cannot define a notes.ini variable to an empty value...
+
+## Import dom-spring update site into Domino Designer
+
+If you haven't imported the dom-spring source (contained in the "domino-osgi" folder), you must import the update site into Domino Designer :
+
+- Go to File/Preferences menu, in the "Domino Designer" section, and check "Enable Eclipse plug-in install"
+- Now, go to File/Application/Install menu.
+- Select "Search for new features"
+- Add a "Zip/jar location" and go find the zip that correspond to the dom-spring update site (the same file you use to install on your server).
+- Click Finish, and accept licences.
+- Designer will ask to restart.
+
+## Import the sample app code
+
+Import the projects stored in the "sample" folder.
+
+## Generate the update site
+
+Open the site.xml file, and click "build All".
+
+## Deploy to your Domino Server
+
+Deploy the generated update site using an Eclipse Update Site Database, or use the Domino Debug Plugin to plug you Domino Server to your Designer workspace.
+
+## Sample application endpoints
 
 The sample app endpoints are accessible using URLs like :
 
@@ -421,22 +463,22 @@ Or, if you want to execute them in the context of a notes database (you will hav
 
 All endpoints are implemented in the SampleController class file.
 	
-## The "/hello" endpoint
+### The "/hello" endpoint
 
 This endpoint will return you information from the current user, the current database (if you have a NSF in the URL), etc... It will also extract values of properties made available from different Spring PropertySources.
 
 Just call it, and have a look at the JSON result.
 
-### Notes.ini variables
+#### Notes.ini variables
 
 Look at the "directory" property. Its value is what is defined in the DIRECTORY notes.ini variable.
 
-### Static property
+#### Static property
 
 This endpoint will extract a property named "spring.sample.static.property" that is defined by the StaticPropertySource object. Look at its implementation, and note that this class 
 is used in the plugin.xml to add an extension to the main spring plugin.
 
-### Property from a Notes document (ie configuration document)
+#### Property from a Notes document (ie configuration document)
 
 The same way, it will also extract a property named "spring.sample.local.ParamField". 
 This property value is extracted from the field named "ParamField" stored in the first document of the "Params" view (if such a view with such a document exists in the current context).
@@ -454,7 +496,7 @@ Spring to evaluate the property at runtime, when executing the controller's meth
 So, to define a value for this property, simply create a Notes database with a view named "Params", and add a document in this view with a field named "ParamField".
 Save the doc, access the /hello endpoint, and you will get the value of your field in the JSON response.
 
-## The "/exception" endpoint
+### The "/exception" endpoint
 
 This endpoint will raise an exception. It is used to show you how to implement @ControllerAdvice to catch exceptions, and display a custom error page.
 
@@ -462,20 +504,20 @@ Look at the code of the ExceptionController class.
 
 Nothing specific to Domino environnement. This endpoint is just here to show you that @ControllerAdvice, @ErrorHandler, etc... are working as expected.
 
-## The "/message.html" endpoint
+### The "/message.html" endpoint
 
 This endpoint is here to show you how to use Spring MVC with freemarker templates.
 
 As for "/exception", there is nothing specific to Domino. Note that the Freemarkers templates are defined in the "/templates" folder, and that this folder is 
 exported in the "build" part of the plugin.xml/MANIFEST.MF/build.properties eclipse editor.
 
-## The "/redirect" endpoint
+### The "/redirect" endpoint
 
 This endpoint will redirect the browser (using a 302 http response code) to the "/message.html" endpoint.
 
 Nothing specific to Domino here. Just to show you that it is working.
 
-## The "/add" and "/list" endpoints
+### The "/add" and "/list" endpoints
 
 Those endpoints will show you how to use Hibernate and JPA with Domino and Spring.
 
@@ -484,25 +526,10 @@ Also note that the H2 JDBC driver is deployed with the main spring plugin. This 
 
 The jpa and hibernate properties must be defined as standard Spring Properties. As explained in introduction of this chapter, the simplest way to define them is to create notes.ini variables :
 
-	# Database Configuration
-	db.driver=org.h2.Driver
-	db.url=jdbc:h2:mem:datajpa
-	db.username=sa
-	db.password=EMPTY_STRING
-
-	# Hibernate Configuration
-	hibernate.dialect=org.hibernate.dialect.H2Dialect
-	hibernate.hbm2ddl.auto=create-drop
-	hibernate.ejb.naming_strategy=org.hibernate.cfg.ImprovedNamingStrategy
-	hibernate.show_sql=false
-	hibernate.format_sql=true
-
-Note the use of the "EMPTY_STRING" keyword. This is because you cannot define a notes.ini variable to an empty value...
-
 Once the notes.ini have been updated, you can use the two endpoints to add a new "ToDo", and retrieving the list of the previously added values.
 As the database is in-memory only, restarting the http task will reset the list of values.
 
-## The logging aspect
+### The logging aspect
 
 Note that every access to any of the SampleController methods will be logged at the server console. This is implemented using an Aspect.
 
